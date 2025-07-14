@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kian's Birthday Invitation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Baloo 2', cursive;
+            background-color: #f0f9ff;
+            overflow-x: hidden;
+        }
+        
+        .balloon {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .balloon:nth-child(2) {
+            animation-delay: 1s;
+        }
+        
+        .balloon:nth-child(3) {
+            animation-delay: 2s;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+        }
+        
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px); opacity: 1; }
+            100% { transform: translateY(600px) rotate(360deg); opacity: 0; }
+        }
+        
+        .card-flip {
+            perspective: 1000px;
+        }
+        
+        .card-inner {
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+        
+        .card-front, .card-back {
+            backface-visibility: hidden;
+        }
+        
+        .card-back {
+            transform: rotateY(180deg);
+        }
+        
+        .flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .photo-frame {
+            border: 8px solid #FFC107;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .number-input {
+            width: 60px;
+        }
+        
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <!-- Confetti container -->
+    <div id="confetti-container" class="fixed top-0 left-0 w-full h-full pointer-events-none z-10"></div>
+    
+    <div class="card-flip w-full max-w-md">
+        <div class="card-inner relative w-full">
+            <!-- Front of card -->
+            <div class="card-front bg-gradient-to-b from-blue-400 to-blue-600 rounded-3xl shadow-xl p-6 flex flex-col items-center">
+                <!-- Balloons -->
+                <div class="absolute -top-16 -left-4">
+                    <svg class="balloon w-16 h-20" viewBox="0 0 50 60">
+                        <path d="M25,1 C38,1 45,12 45,25 C45,38 38,50 25,50 C12,50 5,38 5,25 C5,12 12,1 25,1" fill="#FF5252"></path>
+                        <path d="M25,50 L25,60" stroke="#7E57C2" stroke-width="2"></path>
+                    </svg>
+                </div>
+                <div class="absolute -top-12 left-12">
+                    <svg class="balloon w-16 h-20" viewBox="0 0 50 60">
+                        <path d="M25,1 C38,1 45,12 45,25 C45,38 38,50 25,50 C12,50 5,38 5,25 C5,12 12,1 25,1" fill="#FFCA28"></path>
+                        <path d="M25,50 L25,60" stroke="#7E57C2" stroke-width="2"></path>
+                    </svg>
+                </div>
+                <div class="absolute -top-14 right-8">
+                    <svg class="balloon w-16 h-20" viewBox="0 0 50 60">
+                        <path d="M25,1 C38,1 45,12 45,25 C45,38 38,50 25,50 C12,50 5,38 5,25 C5,12 12,1 25,1" fill="#66BB6A"></path>
+                        <path d="M25,50 L25,60" stroke="#7E57C2" stroke-width="2"></path>
+                    </svg>
+                </div>
+                
+                <!-- Photo frame for Kian's picture -->
+                <div class="mt-10 mb-4 photo-frame rounded-full bg-white w-32 h-32 flex items-center justify-center">
+                    <!-- Placeholder for Kian's photo - replace with actual photo -->
+                    <div class="text-center">
+                        <svg class="w-20 h-20 mx-auto text-blue-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                        </svg>
+                        <p class="text-xs text-blue-500">Kian's Photo</p>
+                    </div>
+                </div>
+                
+                <h1 class="text-4xl font-bold text-white text-center mb-1">Kian's</h1>
+                <h2 class="text-3xl font-bold text-yellow-300 text-center mb-2">7th Birthday!</h2>
+                <p class="text-xl text-white text-center mb-6">Tap to open your invitation</p>
+                
+                <button id="open-invite" class="bg-yellow-400 hover:bg-yellow-500 text-blue-800 font-bold py-3 px-6 rounded-full shadow-lg transform transition hover:scale-105 focus:outline-none">
+                    Open Invitation
+                </button>
+            </div>
+            
+            <!-- Back of card (invitation details) -->
+            <div class="card-back bg-white rounded-3xl shadow-xl p-6 absolute top-0 w-full h-full">
+                <div class="flex flex-col h-full">
+                    <div class="text-center mb-4">
+                        <h2 class="text-3xl font-bold text-blue-600">You're Invited!</h2>
+                        <div class="flex justify-center my-2">
+                            <span class="text-5xl">🎂</span>
+                        </div>
+                        <p class="text-xl font-semibold text-blue-800">To Kian's 7th Birthday Party!</p>
+                    </div>
+                    
+                    <div class="space-y-4 flex-grow">
+                        <div class="flex items-center">
+                            <div class="bg-blue-100 rounded-full p-2 mr-3">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-700">Date</p>
+                                <p class="text-gray-600">September 28, 2025</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="bg-blue-100 rounded-full p-2 mr-3">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-700">Time</p>
+                                <p class="text-gray-600">3:00 PM - 7:00 PM</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="bg-blue-100 rounded-full p-2 mr-3">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-700">Location</p>
+                                <p class="text-gray-600">Cerritos Library</p>
+                                <p class="text-gray-600">Skyline Room</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 space-y-4">
+                        <button id="rsvp-yes" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                            I'll Be There! 🎉
+                        </button>
+                        
+                        <button id="rsvp-no" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-4 rounded-lg transition">
+                            Can't Make It 😢
+                        </button>
+                        
+                        <button id="flip-back" class="w-full bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-lg transition">
+                            Back to Front
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- RSVP Confirmation Modal -->
+    <div id="rsvp-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-sm mx-4">
+            <div id="rsvp-content" class="text-center">
+                <!-- Content will be set by JavaScript -->
+            </div>
+            <div class="mt-6 text-center">
+                <button id="close-modal" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Guest Count Modal -->
+    <div id="guest-count-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-sm mx-4">
+            <div class="text-center mb-4">
+                <h3 class="text-2xl font-bold text-blue-600">How many guests?</h3>
+                <p class="text-gray-600 mt-2">Please let us know how many people will be attending</p>
+            </div>
+            
+            <form id="guest-form" class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <label class="text-lg font-medium text-gray-700">Adults:</label>
+                    <div class="flex items-center">
+                        <button type="button" class="decrement-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold w-8 h-8 rounded-l-lg flex items-center justify-center">-</button>
+                        <input type="number" id="adult-count" class="number-input h-8 text-center border-y border-gray-300" value="1" min="0" max="10">
+                        <button type="button" class="increment-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold w-8 h-8 rounded-r-lg flex items-center justify-center">+</button>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <label class="text-lg font-medium text-gray-700">Children:</label>
+                    <div class="flex items-center">
+                        <button type="button" class="decrement-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold w-8 h-8 rounded-l-lg flex items-center justify-center">-</button>
+                        <input type="number" id="child-count" class="number-input h-8 text-center border-y border-gray-300" value="1" min="0" max="10">
+                        <button type="button" class="increment-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold w-8 h-8 rounded-r-lg flex items-center justify-center">+</button>
+                    </div>
+                </div>
+                
+                <!-- Added guest name field -->
+                <div class="pt-2">
+                    <label class="block text-lg font-medium text-gray-700 mb-2">Your Name:</label>
+                    <input type="text" id="guest-name" class="w-full h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <!-- Added guest email/phone field -->
+                <div class="pt-2">
+                    <label class="block text-lg font-medium text-gray-700 mb-2">Your Email or Phone:</label>
+                    <input type="text" id="guest-contact" class="w-full h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                        Confirm
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Share Modal -->
+    <div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-sm mx-4">
+            <div class="text-center mb-4">
+                <h3 class="text-2xl font-bold text-blue-600">Share This Invitation</h3>
+                <p class="text-gray-600 mt-2">Copy the link below to share via SMS or email</p>
+            </div>
+            
+            <div class="bg-gray-100 p-3 rounded-lg mb-4">
+                <p id="share-url" class="text-gray-800 break-all text-sm"></p>
+            </div>
+            
+            <div class="space-y-3">
+                <button id="copy-link" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                    </svg>
+                    Copy Link
+                </button>
+                
+                <button id="close-share" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Panel Button (Hidden by default) -->
+    <div id="admin-button" class="fixed bottom-4 right-4 hidden">
+        <button id="show-admin" class="bg-gray-700 hover:bg-gray-800 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Admin Panel Modal -->
+    <div id="admin-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-gray-800">RSVP Responses</h3>
+                <button id="close-admin" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div id="admin-content" class="space-y-4">
+                <!-- RSVP data will be displayed here -->
+                <p class="text-gray-600 text-center">No responses yet</p>
+            </div>
+            
+            <div class="mt-6">
+                <button id="share-invitation" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition">
+                    Share Invitation
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Card flip functionality
+        const card = document.querySelector('.card-flip');
+        const openButton = document.getElementById('open-invite');
+        const flipBackButton = document.getElementById('flip-back');
+        
+        openButton.addEventListener('click', () => {
+            card.classList.add('flipped');
+            createConfetti();
+        });
+        
+        flipBackButton.addEventListener('click', () => {
+            card.classList.remove('flipped');
+        });
+        
+        // RSVP functionality
+        const rsvpYesButton = document.getElementById('rsvp-yes');
+        const rsvpNoButton = document.getElementById('rsvp-no');
+        const rsvpModal = document.getElementById('rsvp-modal');
+        const rsvpContent = document.getElementById('rsvp-content');
+        const closeModalButton = document.getElementById('close-modal');
+        const guestCountModal = document.getElementById('guest-count-modal');
+        
+        rsvpYesButton.addEventListener('click', () => {
+            // Show guest count modal instead of confirmation
+            guestCountModal.classList.remove('hidden');
+        });
+        
+        rsvpNoButton.addEventListener('click', () => {
+            // Show a form for "No" responses too
+            rsvpContent.innerHTML = `
+                <h3 class="text-2xl font-bold text-blue-600 mb-2">We'll Miss You!</h3>
+                <p class="text-gray-700">Sorry you can't make it to Kian's party.</p>
+                <form id="decline-form" class="mt-4 text-left">
+                    <div class="mb-3">
+                        <label class="block text-gray-700 mb-1">Your Name:</label>
+                        <input type="text" id="decline-name" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="block text-gray-700 mb-1">Your Email or Phone:</label>
+                        <input type="text" id="decline-contact" class="w-full px-3 py-2 border border-gray-300 rounded-lg" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition mt-2">
+                        Send Response
+                    </button>
+                </form>
+            `;
+            
+            // Set up the decline form submission
+            setTimeout(() => {
+                const declineForm = document.getElementById('decline-form');
+                if (declineForm) {
+                    declineForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const name = document.getElementById('decline-name').value;
+                        const contact = document.getElementById('decline-contact').value;
+                        
+                        // Save the decline response
+                        saveRSVP(name, contact, 0, 0, false);
+                        
+                        // Show thank you message
+                        rsvpContent.innerHTML = `
+                            <h3 class="text-2xl font-bold text-blue-600 mb-2">Thank You!</h3>
+                            <p class="text-gray-700">We've received your response.</p>
+                            <p class="text-gray-700 mt-2">Maybe next time!</p>
+                            <div class="text-5xl my-4">👋</div>
+                        `;
+                    });
+                }
+            }, 100);
+            
+            rsvpModal.classList.remove('hidden');
+        });
+        
+        closeModalButton.addEventListener('click', () => {
+            rsvpModal.classList.add('hidden');
+        });
+        
+        // Guest count form handling
+        const guestForm = document.getElementById('guest-form');
+        const adultCountInput = document.getElementById('adult-count');
+        const childCountInput = document.getElementById('child-count');
+        const guestNameInput = document.getElementById('guest-name');
+        const guestContactInput = document.getElementById('guest-contact');
+        
+        // Increment/decrement buttons
+        document.querySelectorAll('.increment-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.previousElementSibling;
+                const currentValue = parseInt(input.value);
+                if (currentValue < parseInt(input.max)) {
+                    input.value = currentValue + 1;
+                }
+            });
+        });
+        
+        document.querySelectorAll('.decrement-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.nextElementSibling;
+                const currentValue = parseInt(input.value);
+                if (currentValue > parseInt(input.min)) {
+                    input.value = currentValue - 1;
+                }
+            });
+        });
+        
+        guestForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const adultCount = parseInt(adultCountInput.value);
+            const childCount = parseInt(childCountInput.value);
+            const guestName = guestNameInput.value;
+            const guestContact = guestContactInput.value;
+            
+            // Save the RSVP data
+            saveRSVP(guestName, guestContact, adultCount, childCount, true);
+            
+            // Hide guest count modal
+            guestCountModal.classList.add('hidden');
+            
+            // Show confirmation with guest count
+            rsvpContent.innerHTML = `
+                <h3 class="text-2xl font-bold text-green-600 mb-2">Awesome!</h3>
+                <p class="text-gray-700">We're excited you'll be joining Kian's party!</p>
+                <div class="bg-blue-50 rounded-lg p-3 my-3">
+                    <p class="font-medium">Your RSVP details:</p>
+                    <p>${adultCount} adult${adultCount !== 1 ? 's' : ''}</p>
+                    <p>${childCount} child${childCount !== 1 ? 'ren' : ''}</p>
+                </div>
+                <p class="text-gray-700">See you on September 28th!</p>
+                <div class="text-5xl my-4">🎉🎂🎁</div>
+            `;
+            rsvpModal.classList.remove('hidden');
+            createConfetti();
+        });
+        
+        // RSVP data storage
+        function saveRSVP(name, contact, adults, children, attending) {
+            // Get existing RSVPs from localStorage
+            let rsvps = JSON.parse(localStorage.getItem('kianBirthdayRSVPs') || '[]');
+            
+            // Add new RSVP
+            const newRSVP = {
+                name,
+                contact,
+                adults,
+                children,
+                attending,
+                timestamp: new Date().toISOString()
+            };
+            
+            rsvps.push(newRSVP);
+            
+            // Save back to localStorage
+            localStorage.setItem('kianBirthdayRSVPs', JSON.stringify(rsvps));
+            
+            // Update admin panel if open
+            updateAdminPanel();
+            
+            // Send email notification if FormSubmit is set up
+            sendEmailNotification(newRSVP);
+        }
+        
+        // Email notification using FormSubmit service
+        function sendEmailNotification(rsvpData) {
+            // Replace with your FormSubmit endpoint
+            // You'll need to set this up at https://formsubmit.co/
+            const formSubmitEmail = "aman.rezaei@gmail.com"; // REPLACE WITH YOUR EMAIL
+            
+            // Format the message
+            const subject = `RSVP for Kian's Birthday - ${rsvpData.name}`;
+            const message = `
+                Name: ${rsvpData.name}
+                Contact: ${rsvpData.contact}
+                Attending: ${rsvpData.attending ? 'Yes' : 'No'}
+                ${rsvpData.attending ? `Adults: ${rsvpData.adults}` : ''}
+                ${rsvpData.attending ? `Children: ${rsvpData.children}` : ''}
+                Time: ${new Date(rsvpData.timestamp).toLocaleString()}
+            `;
+            
+            // Create a hidden form to submit
+            const form = document.createElement('form');
+            form.style.display = 'none';
+            form.method = 'POST';
+            form.action = `https://formsubmit.co/${formSubmitEmail}`;
+            
+            // Add form fields
+            const nameField = document.createElement('input');
+            nameField.type = 'text';
+            nameField.name = 'name';
+            nameField.value = rsvpData.name;
+            
+            const emailField = document.createElement('input');
+            emailField.type = 'email';
+            emailField.name = 'email';
+            emailField.value = rsvpData.contact.includes('@') ? rsvpData.contact : 'guest@example.com';
+            
+            const subjectField = document.createElement('input');
+            subjectField.type = 'text';
+            subjectField.name = '_subject';
+            subjectField.value = subject;
+            
+            const messageField = document.createElement('textarea');
+            messageField.name = 'message';
+            messageField.value = message;
+            
+            // Add fields to form
+            form.appendChild(nameField);
+            form.appendChild(emailField);
+            form.appendChild(subjectField);
+            form.appendChild(messageField);
+            
+            // Add form to document and submit
+            document.body.appendChild(form);
+            // Uncomment the line below when you've set up FormSubmit
+            form.submit();
+        }
+        
+        // Admin functionality
+        const adminButton = document.getElementById('admin-button');
+        const showAdminButton = document.getElementById('show-admin');
+        const adminModal = document.getElementById('admin-modal');
+        const closeAdminButton = document.getElementById('close-admin');
+        const adminContent = document.getElementById('admin-content');
+        const shareInvitationButton = document.getElementById('share-invitation');
+        
+        // Show admin button with special key combination (Ctrl+Alt+A)
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.altKey && e.key === 'a') {
+                adminButton.classList.remove('hidden');
+            }
+        });
+        
+        showAdminButton.addEventListener('click', () => {
+            updateAdminPanel();
+            adminModal.classList.remove('hidden');
+        });
+        
+        closeAdminButton.addEventListener('click', () => {
+            adminModal.classList.add('hidden');
+        });
+        
+        function updateAdminPanel() {
+            const rsvps = JSON.parse(localStorage.getItem('kianBirthdayRSVPs') || '[]');
+            
+            if (rsvps.length === 0) {
+                adminContent.innerHTML = '<p class="text-gray-600 text-center">No responses yet</p>';
+                return;
+            }
+            
+            // Count totals
+            let totalAttending = 0;
+            let totalAdults = 0;
+            let totalChildren = 0;
+            
+            rsvps.forEach(rsvp => {
+                if (rsvp.attending) {
+                    totalAttending++;
+                    totalAdults += rsvp.adults;
+                    totalChildren += rsvp.children;
+                }
+            });
+            
+            // Create summary
+            let html = `
+                <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                    <h4 class="font-bold text-lg text-blue-800 mb-2">Summary</h4>
+                    <p><span class="font-medium">Responses:</span> ${rsvps.length}</p>
+                    <p><span class="font-medium">Attending:</span> ${totalAttending}</p>
+                    <p><span class="font-medium">Total Adults:</span> ${totalAdults}</p>
+                    <p><span class="font-medium">Total Children:</span> ${totalChildren}</p>
+                </div>
+                <h4 class="font-bold text-lg mb-3">All Responses</h4>
+            `;
+            
+            // Add individual responses
+            rsvps.forEach((rsvp, index) => {
+                const date = new Date(rsvp.timestamp).toLocaleDateString();
+                html += `
+                    <div class="border border-gray-200 rounded-lg p-3 ${rsvp.attending ? 'bg-green-50' : 'bg-gray-50'}">
+                        <div class="flex justify-between">
+                            <p class="font-medium">${rsvp.name}</p>
+                            <span class="text-sm text-gray-500">${date}</span>
+                        </div>
+                        <p>${rsvp.contact}</p>
+                        <p class="mt-1">${rsvp.attending ? 
+                            `Attending: ${rsvp.adults} adults, ${rsvp.children} children` : 
+                            'Not attending'}
+                        </p>
+                    </div>
+                `;
+            });
+            
+            // Add export button
+            html += `
+                <button id="export-data" class="mt-4 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition">
+                    Export Data (CSV)
+                </button>
+            `;
+            
+            adminContent.innerHTML = html;
+            
+            // Set up export button
+            setTimeout(() => {
+                const exportButton = document.getElementById('export-data');
+                if (exportButton) {
+                    exportButton.addEventListener('click', exportRSVPData);
+                }
+            }, 100);
+        }
+        
+        function exportRSVPData() {
+            const rsvps = JSON.parse(localStorage.getItem('kianBirthdayRSVPs') || '[]');
+            
+            if (rsvps.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            // Create CSV content
+            let csvContent = 'Name,Contact,Attending,Adults,Children,Timestamp\n';
+            
+            rsvps.forEach(rsvp => {
+                const row = [
+                    `"${rsvp.name}"`,
+                    `"${rsvp.contact}"`,
+                    rsvp.attending ? 'Yes' : 'No',
+                    rsvp.adults || 0,
+                    rsvp.children || 0,
+                    rsvp.timestamp
+                ];
+                csvContent += row.join(',') + '\n';
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'kian_birthday_rsvps.csv');
+            a.click();
+        }
+        
+        // Share functionality
+        const shareModal = document.getElementById('share-modal');
+        const shareUrlElement = document.getElementById('share-url');
+        const copyLinkButton = document.getElementById('copy-link');
+        const closeShareButton = document.getElementById('close-share');
+        
+        shareInvitationButton.addEventListener('click', () => {
+            adminModal.classList.add('hidden');
+            
+            // Get the current URL
+            const url = window.location.href;
+            shareUrlElement.textContent = url;
+            
+            shareModal.classList.remove('hidden');
+        });
+        
+        copyLinkButton.addEventListener('click', () => {
+            const url = shareUrlElement.textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                copyLinkButton.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyLinkButton.innerHTML = `
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                        </svg>
+                        Copy Link
+                    `;
+                }, 2000);
+            });
+        });
+        
+        closeShareButton.addEventListener('click', () => {
+            shareModal.classList.add('hidden');
+        });
+        
+        // Confetti animation
+        function createConfetti() {
+            const confettiContainer = document.getElementById('confetti-container');
+            const colors = ['#FFC107', '#2196F3', '#4CAF50', '#FF5252', '#9C27B0'];
+            
+            // Clear any existing confetti
+            confettiContainer.innerHTML = '';
+            
+            // Create new confetti pieces
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                
+                // Random shapes
+                if (Math.random() > 0.5) {
+                    confetti.style.borderRadius = '50%';
+                } else {
+                    confetti.style.width = '7px';
+                    confetti.style.height = '14px';
+                }
+                
+                confettiContainer.appendChild(confetti);
+            }
+        }
+        
+        // Show admin button for testing (remove in production)
+        // Uncomment this line to always show the admin button
+        // adminButton.classList.remove('hidden');
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95f21e2280b47650',t:'MTc1MjUwNzYxNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
