@@ -79,6 +79,12 @@
         input[type=number]::-webkit-outer-spin-button { 
             opacity: 1;
         }
+        
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
@@ -110,19 +116,20 @@
                 </div>
                 
                 <!-- Photo frame for Kian's picture -->
-                <div class="mt-10 mb-4 photo-frame rounded-full bg-white w-32 h-32 flex items-center justify-center">
-                    <!-- Placeholder for Kian's photo - replace with actual photo -->
-                    <div class="text-center">
+                <div class="mt-10 mb-4 photo-frame rounded-full bg-white w-32 h-32 flex items-center justify-center overflow-hidden">
+                    <!-- This will be replaced with the actual image when URL is set -->
+                    <div id="photo-placeholder" class="text-center">
                         <svg class="w-20 h-20 mx-auto text-blue-300" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
                         </svg>
                         <p class="text-xs text-blue-500">Kian's Photo</p>
                     </div>
+                    <img id="profile-image" class="profile-image hidden" alt="Kian's photo">
                 </div>
                 
                 <h1 class="text-4xl font-bold text-white text-center mb-1">Kian's</h1>
                 <h2 class="text-3xl font-bold text-yellow-300 text-center mb-2">7th Birthday!</h2>
-                <p class="text-xl text-white text-center mb-6"></p>
+                <p class="text-xl text-white text-center mb-6">Tap to open your invitation</p>
                 
                 <button id="open-invite" class="bg-yellow-400 hover:bg-yellow-500 text-blue-800 font-bold py-3 px-6 rounded-full shadow-lg transform transition hover:scale-105 focus:outline-none">
                     Open Invitation
@@ -287,6 +294,42 @@
         </div>
     </div>
     
+    <!-- Photo URL Modal -->
+    <div id="photo-url-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-sm mx-4">
+            <div class="text-center mb-4">
+                <h3 class="text-2xl font-bold text-blue-600">Set Photo URL</h3>
+                <p class="text-gray-600 mt-2">Enter the URL for Kian's photo</p>
+            </div>
+            
+            <form id="photo-url-form" class="space-y-6">
+                <div>
+                    <input type="url" id="photo-url-input" class="w-full h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com/kian-photo.jpg" required>
+                </div>
+                
+                <div class="pt-2 text-sm text-gray-600">
+                    <p>For OneDrive links:</p>
+                    <ol class="list-decimal pl-5 space-y-1">
+                        <li>Right-click on the image in OneDrive</li>
+                        <li>Select "Share" or "Get link"</li>
+                        <li>Make sure it's set to "Anyone with the link can view"</li>
+                        <li>Copy the link</li>
+                        <li>Change "?e=xxx" to "?download=1" at the end</li>
+                    </ol>
+                </div>
+                
+                <div class="pt-4 flex space-x-3">
+                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition">
+                        Save
+                    </button>
+                    <button type="button" id="close-photo-url" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <!-- Admin Panel Button (Hidden by default) -->
     <div id="admin-button" class="fixed bottom-4 right-4 hidden">
         <button id="show-admin" class="bg-gray-700 hover:bg-gray-800 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
@@ -301,7 +344,7 @@
     <div id="admin-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-xl p-6 max-w-md mx-4 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-2xl font-bold text-gray-800">RSVP Responses</h3>
+                <h3 class="text-2xl font-bold text-gray-800">Admin Panel</h3>
                 <button id="close-admin" class="text-gray-500 hover:text-gray-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -309,20 +352,98 @@
                 </button>
             </div>
             
-            <div id="admin-content" class="space-y-4">
-                <!-- RSVP data will be displayed here -->
-                <p class="text-gray-600 text-center">No responses yet</p>
-            </div>
-            
-            <div class="mt-6">
-                <button id="share-invitation" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition">
-                    Share Invitation
-                </button>
+            <div class="space-y-6">
+                <!-- Settings Section -->
+                <div class="border-b border-gray-200 pb-6">
+                    <h4 class="font-bold text-lg mb-3">Settings</h4>
+                    
+                    <div class="space-y-3">
+                        <button id="set-photo-url" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Set Photo URL
+                        </button>
+                        
+                        <button id="set-email" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            Set Email for Notifications
+                        </button>
+                        
+                        <button id="share-invitation" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                            </svg>
+                            Share Invitation
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- RSVP Responses Section -->
+                <div>
+                    <h4 class="font-bold text-lg mb-3">RSVP Responses</h4>
+                    <div id="admin-content" class="space-y-4">
+                        <!-- RSVP data will be displayed here -->
+                        <p class="text-gray-600 text-center">No responses yet</p>
+                    </div>
+                    
+                    <button id="export-data" class="mt-4 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Export Data (CSV)
+                    </button>
+                </div>
             </div>
         </div>
     </div>
     
+    <!-- Email Settings Modal -->
+    <div id="email-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-sm mx-4">
+            <div class="text-center mb-4">
+                <h3 class="text-2xl font-bold text-blue-600">Email Settings</h3>
+                <p class="text-gray-600 mt-2">Enter your email to receive RSVP notifications</p>
+            </div>
+            
+            <form id="email-form" class="space-y-6">
+                <div>
+                    <input type="email" id="notification-email" class="w-full h-10 px-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="your@email.com" required>
+                </div>
+                
+                <div class="pt-2 text-sm text-gray-600">
+                    <p>After setting your email:</p>
+                    <ol class="list-decimal pl-5 space-y-1">
+                        <li>Visit <a href="https://formsubmit.co/" target="_blank" class="text-blue-500 underline">formsubmit.co</a></li>
+                        <li>Enter this same email address</li>
+                        <li>Confirm your email when you receive their verification</li>
+                    </ol>
+                </div>
+                
+                <div class="pt-4 flex space-x-3">
+                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition">
+                        Save
+                    </button>
+                    <button type="button" id="close-email" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <script>
+        // Initialize settings from localStorage
+        let photoUrl = localStorage.getItem('kianBirthdayPhotoUrl') || '';
+        let notificationEmail = localStorage.getItem('kianBirthdayEmail') || '';
+        
+        // Apply photo if available
+        if (photoUrl) {
+            setProfileImage(photoUrl);
+        }
+        
         // Card flip functionality
         const card = document.querySelector('.card-flip');
         const openButton = document.getElementById('open-invite');
@@ -486,9 +607,13 @@
         
         // Email notification using FormSubmit service
         function sendEmailNotification(rsvpData) {
-            // Replace with your FormSubmit endpoint
-            // You'll need to set this up at https://formsubmit.co/
-            const formSubmitEmail = "aman.rezaei@gmail.com"; // REPLACE WITH YOUR EMAIL
+            // Get the notification email from localStorage
+            const formSubmitEmail = notificationEmail;
+            
+            // If no email is set, don't try to send
+            if (!formSubmitEmail) {
+                return;
+            }
             
             // Format the message
             const subject = `RSVP for Kian's Birthday - ${rsvpData.name}`;
@@ -535,8 +660,11 @@
             
             // Add form to document and submit
             document.body.appendChild(form);
-            // Uncomment the line below when you've set up FormSubmit
-            form.submit();
+            
+            // Only submit if email is set
+            if (formSubmitEmail && formSubmitEmail !== '') {
+                form.submit();
+            }
         }
         
         // Admin functionality
@@ -546,6 +674,9 @@
         const closeAdminButton = document.getElementById('close-admin');
         const adminContent = document.getElementById('admin-content');
         const shareInvitationButton = document.getElementById('share-invitation');
+        const setPhotoUrlButton = document.getElementById('set-photo-url');
+        const setEmailButton = document.getElementById('set-email');
+        const exportDataButton = document.getElementById('export-data');
         
         // Show admin button with special key combination (Ctrl+Alt+A)
         document.addEventListener('keydown', (e) => {
@@ -561,6 +692,85 @@
         
         closeAdminButton.addEventListener('click', () => {
             adminModal.classList.add('hidden');
+        });
+        
+        // Photo URL functionality
+        const photoUrlModal = document.getElementById('photo-url-modal');
+        const photoUrlForm = document.getElementById('photo-url-form');
+        const photoUrlInput = document.getElementById('photo-url-input');
+        const closePhotoUrlButton = document.getElementById('close-photo-url');
+        
+        setPhotoUrlButton.addEventListener('click', () => {
+            adminModal.classList.add('hidden');
+            photoUrlInput.value = photoUrl;
+            photoUrlModal.classList.remove('hidden');
+        });
+        
+        closePhotoUrlButton.addEventListener('click', () => {
+            photoUrlModal.classList.add('hidden');
+            adminModal.classList.remove('hidden');
+        });
+        
+        photoUrlForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newPhotoUrl = photoUrlInput.value.trim();
+            
+            if (newPhotoUrl) {
+                photoUrl = newPhotoUrl;
+                localStorage.setItem('kianBirthdayPhotoUrl', photoUrl);
+                setProfileImage(photoUrl);
+            }
+            
+            photoUrlModal.classList.add('hidden');
+            adminModal.classList.remove('hidden');
+        });
+        
+        function setProfileImage(url) {
+            const profileImage = document.getElementById('profile-image');
+            const photoPlaceholder = document.getElementById('photo-placeholder');
+            
+            profileImage.src = url;
+            profileImage.onload = function() {
+                photoPlaceholder.classList.add('hidden');
+                profileImage.classList.remove('hidden');
+            };
+            
+            profileImage.onerror = function() {
+                photoPlaceholder.classList.remove('hidden');
+                profileImage.classList.add('hidden');
+                alert('Could not load the image. Please check the URL and try again.');
+            };
+        }
+        
+        // Email settings functionality
+        const emailModal = document.getElementById('email-modal');
+        const emailForm = document.getElementById('email-form');
+        const notificationEmailInput = document.getElementById('notification-email');
+        const closeEmailButton = document.getElementById('close-email');
+        
+        setEmailButton.addEventListener('click', () => {
+            adminModal.classList.add('hidden');
+            notificationEmailInput.value = notificationEmail;
+            emailModal.classList.remove('hidden');
+        });
+        
+        closeEmailButton.addEventListener('click', () => {
+            emailModal.classList.add('hidden');
+            adminModal.classList.remove('hidden');
+        });
+        
+        emailForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newEmail = notificationEmailInput.value.trim();
+            
+            if (newEmail) {
+                notificationEmail = newEmail;
+                localStorage.setItem('kianBirthdayEmail', notificationEmail);
+                alert('Email saved! Remember to set up FormSubmit with this email.');
+            }
+            
+            emailModal.classList.add('hidden');
+            adminModal.classList.remove('hidden');
         });
         
         function updateAdminPanel() {
@@ -614,23 +824,10 @@
                 `;
             });
             
-            // Add export button
-            html += `
-                <button id="export-data" class="mt-4 w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition">
-                    Export Data (CSV)
-                </button>
-            `;
-            
             adminContent.innerHTML = html;
-            
-            // Set up export button
-            setTimeout(() => {
-                const exportButton = document.getElementById('export-data');
-                if (exportButton) {
-                    exportButton.addEventListener('click', exportRSVPData);
-                }
-            }, 100);
         }
+        
+        exportDataButton.addEventListener('click', exportRSVPData);
         
         function exportRSVPData() {
             const rsvps = JSON.parse(localStorage.getItem('kianBirthdayRSVPs') || '[]');
@@ -697,6 +894,7 @@
         
         closeShareButton.addEventListener('click', () => {
             shareModal.classList.add('hidden');
+            adminModal.classList.remove('hidden');
         });
         
         // Confetti animation
@@ -730,7 +928,7 @@
         
         // Show admin button for testing (remove in production)
         // Uncomment this line to always show the admin button
-        // adminButton.classList.remove('hidden');
+        adminButton.classList.remove('hidden');
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95f21e2280b47650',t:'MTc1MjUwNzYxNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'95f27c99e40a5307',t:'MTc1MjUxMTQ4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
