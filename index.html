@@ -10,7 +10,7 @@
         
         body {
             font-family: 'Baloo 2', cursive;
-            background-color: Light Grey;
+            background-color: red;
             overflow-x: hidden;
         }
         
@@ -88,7 +88,7 @@
     <div class="card-flip w-full max-w-md">
         <div class="card-inner relative w-full">
             <!-- Front of card -->
-            <div class="card-front bg-gradient-to-b from-blue-400 to-blue-600 rounded-3xl shadow-xl p-6 flex flex-col items-center">
+            <div class="card-front bg-gradient-to-b from-orange-400 to-orange-600 rounded-3xl shadow-xl p-6 flex flex-col items-center">
                 <!-- Balloons -->
                 <div class="absolute -top-16 -left-4">
                     <svg class="balloon w-16 h-20" viewBox="0 0 50 60">
@@ -124,7 +124,7 @@
             </div>
             
             <!-- Back of card (invitation details) -->
-            <div class="card-back bg-white rounded-3xl shadow-xl p-6 absolute top-0 w-full h-full">
+            <div class="card-back bg-gradient-to-b from-blue-200 to-orange-600 rounded-3xl shadow-xl p-6 absolute top-0 w-full h-full">
                 <div class="flex flex-col h-full">
                     <div class="text-center mb-4">
                         <h2 class="text-3xl font-bold text-blue-600">You're Invited!</h2>
@@ -182,15 +182,15 @@
                     </div>
                     
                     <div class="mt-6 space-y-4">
-                        <button id="rsvp-yes" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg transition">
+                        <button id="rsvp-yes" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-lg transition">
                             I'll Be There! 🎉
                         </button>
                         
-                        <button id="rsvp-no" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-4 rounded-lg transition">
+                        <button id="rsvp-no" class="w-full bg-red-800 hover:bg-red-400 text-gray-800 font-bold py-3 px-4 rounded-lg transition">
                             Can't Make It 😢
                         </button>
                         
-                        <button id="flip-back" class="w-full bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-lg transition">
+                        <button id="flip-back" class="w-full bg-orange-500 hover:bg-orange-200 text-blue-800 font-bold py-2 px-4 rounded-lg transition">
                             Back to Front
                         </button>
                     </div>
